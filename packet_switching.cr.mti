@@ -1,4 +1,63 @@
-D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/fifo_queue.v {1 {vlog -work work D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/fifo_queue.v
+D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v {0 {vlog -work work D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v
+Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(5): Cannot open `include file "packet_defs.vh".
+-- Compiling module header_parser
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(8): (vlog-2163) Macro `PKT_WIDTH is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(11): (vlog-2163) Macro `ADDR_WIDTH is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(12): (vlog-2163) Macro `ADDR_WIDTH is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(30): (vlog-2163) Macro `DST_HI is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(30): near ":": syntax error, unexpected ':'
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(30): (vlog-2163) Macro `DST_LO is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(31): (vlog-2163) Macro `SRC_HI is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(31): near ":": syntax error, unexpected ':'
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(31): (vlog-2163) Macro `SRC_LO is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(32): (vlog-2163) Macro `TYPE_HI is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(32): near ":": syntax error, unexpected ':'
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(32): (vlog-2163) Macro `TYPE_LO is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(33): (vlog-2163) Macro `PRIO_HI is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(33): near ":": syntax error, unexpected ':'
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(33): (vlog-2163) Macro `PRIO_LO is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(34): (vlog-2163) Macro `LEN_HI is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(34): near ":": syntax error, unexpected ':'
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(34): (vlog-2163) Macro `LEN_LO is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(35): (vlog-2163) Macro `PAYLOAD_HI is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(35): near ":": syntax error, unexpected ':'
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(35): (vlog-2163) Macro `PAYLOAD_LO is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(38): (vlog-2163) Macro `PKT_DATA is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(38): near ")": syntax error, unexpected ')'
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(39): (vlog-2163) Macro `PKT_CTRL is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(39): near ")": syntax error, unexpected ')'
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(40): (vlog-2163) Macro `PKT_BCAST is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(40): near ")": syntax error, unexpected ')'
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(41): (vlog-2163) Macro `PKT_DROP is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(41): near ")": syntax error, unexpected ')'
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(42): (vlog-2163) Macro `PKT_DROP is undefined.
+
+** Error: D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/header_parser.v(42): near ")": syntax error, unexpected ')'
+
+} {3.0 4.0 5.0 6.0 7.0 8.0 9.0 10.0 11.0 12.0 13.0 15.0 16.0 17.0 18.0 20.0 21.0 22.0 23.0 25.0 26.0 27.0 28.0 30.0 31.0 32.0 33.0 35.0 36.0 37.0 38.0 40.0 41.0 42.0 43.0 45.0 46.0 48.0 49.0 51.0 52.0 54.0 55.0 56.0} {}} {D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/ packet_defs.v} {1 {vlog -work work {D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/ packet_defs.v}
+Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
+
+} {} {}} D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/fifo_queue.v {1 {vlog -work work D:/embeddedprojectgithhub/Packet-Switch-Using-Verilog-/fifo_queue.v
 Model Technology ModelSim ALTERA vlog 10.1d Compiler 2012.11 Nov  2 2012
 -- Compiling module fifo_queue
 
