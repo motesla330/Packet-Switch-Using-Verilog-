@@ -1,5 +1,11 @@
 /*
 Author : tesla 
+This is a simple FIFO queue implementation in Verilog.
+It uses a circular buffer approach to manage the storage of data packets.
+The queue supports parameterizable data width and depth,
+allowing for flexibility in different applications.
+The module includes logic for writing and reading data,
+as well as status flags to indicate when the queue is full or empty.
 
 */
 
