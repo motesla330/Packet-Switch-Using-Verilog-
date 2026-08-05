@@ -31,10 +31,14 @@ module routing_table #(
 
     // --- Reset and write ---
     always @(posedge clk or negedge rst_n) begin
+        
         if (!rst_n) begin
+
             for (i = 0; i < TABLE_SIZE; i = i + 1)
-                rt_mem[i] <= {(PORT_WIDTH+1){1'b0}};  // ← was table[i]
+                rt_mem[i] <= {(PORT_WIDTH+1){1'b0}};  //
+                 ← was table[i]
         end else if (wr_en) begin
+
             rt_mem[wr_addr] <= {wr_valid, wr_port};   // ← was table[wr_addr]
         end
     end
@@ -44,7 +48,7 @@ module routing_table #(
         if (!rst_n) begin
             lookup_port  <= 0;
             lookup_valid <= 0;
-        end else begin
+        end else  if (wr_en!=1)begin
             lookup_port  <= rt_mem[lookup_addr][PORT_WIDTH-1:0]; // ← was table
             lookup_valid <= rt_mem[lookup_addr][PORT_WIDTH];     // ← was table
         end

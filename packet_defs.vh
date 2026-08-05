@@ -1,6 +1,6 @@
 
 //  packet_defs.v  — shared constants, include in every file
- `ifndef PACKET_DEFS_VH
+`ifndef PACKET_DEFS_VH
 `define PACKET_DEFS_VH
 
 `define PKT_WIDTH     64
