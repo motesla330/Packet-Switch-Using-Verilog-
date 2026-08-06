@@ -1,0 +1,54 @@
+// ============================================================
+//  crossbar.v  — 4×4 non-blocking crossbar switch fabric
+// ============================================================
+`include "packet_defs.vh"
+
+module crossbar #(
+    parameter NUM_PORTS  = 4,
+    parameter DATA_WIDTH = 64
+)(
+    input  wire                   clk,
+    input  wire                   rst_n,
+
+    // Data arriving from each input port's FIFO
+    input  wire [DATA_WIDTH-1:0]  in_data  [0:NUM_PORTS-1],
+    input  wire [NUM_PORTS-1:0]   in_valid,   // which inputs have data
+
+    // Routing decision from arbiter + routing table
+    // sel[i] = which output port input i should go to
+    input  wire [1:0]             sel      [0:NUM_PORTS-1],
+    input  wire [NUM_PORTS-1:0]   sel_valid,  // grant is actually active
+
+    // Output to each output port's FIFO
+    output reg  [DATA_WIDTH-1:0]  out_data [0:NUM_PORTS-1],
+    output reg  [NUM_PORTS-1:0]   out_valid
+);
+
+    integer inp, outp;
+
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            // Clear all outputs
+            for (outp = 0; outp < NUM_PORTS; outp = outp + 1) begin
+                out_data[outp]  <= {DATA_WIDTH{1'b0}};
+                out_valid[outp] <= 1'b0;
+            end
+        end else begin
+            // Default: all outputs invalid this cycle
+            for (outp = 0; outp < NUM_PORTS; outp = outp + 1) begin
+                out_data[outp]  <= {DATA_WIDTH{1'b0}};
+                out_valid[outp] <= 1'b0;
+            end
+
+            // For each input port, if it has a valid grant,
+            // forward its data to the selected output port
+            for (inp = 0; inp < NUM_PORTS; inp = inp + 1) begin
+                if (in_valid[inp] && sel_valid[inp]) begin
+                    out_data[sel[inp]]  <= in_data[inp];
+                    out_valid[sel[inp]] <= 1'b1;
+                end
+            end
+        end
+    end
+
+endmodule
