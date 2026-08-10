@@ -57,7 +57,7 @@ always @(posedge clk or negedge rst_n)begin
      // only write if enabled && there is space
         if (wr_en && !full) begin
                 mem[wr_ptr] <= din;          // store data
-                wr_ptr <= (wr_ptr + 1) % DEPTH; // wrap around
+                wr_ptr <= (wr_ptr + 1) ; // wrap around
 
 
          end 
