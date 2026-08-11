@@ -42,14 +42,17 @@ module routing_table #(
     if (!rst_n) begin
         for (i = 0; i < TABLE_SIZE; i = i + 1) begin
             
-            if (i < 6) begin
-                rt_mem[i] <= {1'b0, 2'b00};
+            if (i < 4) begin
+                rt_mem[i] <= {1'b0, 2'b00}; 
             end 
-            else if (i < 11) begin
+            else if (i < 8) begin
                 rt_mem[i] <= {1'b0, 2'b01}; 
             end 
-            else begin
+            else if (i < 12) begin
                 rt_mem[i] <= {1'b0, 2'b10}; 
+            end 
+            else begin
+                rt_mem[i] <= {1'b0, 2'b11}; 
             end
 
         end
