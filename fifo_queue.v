@@ -24,7 +24,7 @@ module fifo_queue #(
 
     //read side 
     input wire rd_en,
-    output reg [DATA_WIDTH-1:0] dout ,
+    output wire [DATA_WIDTH-1:0] dout ,
     // status flag 
     output wire full ,
     output wire empty 
