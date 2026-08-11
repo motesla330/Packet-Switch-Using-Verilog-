@@ -16,7 +16,7 @@ module crossbar #(
 
     // Routing decision from arbiter + routing table
     // sel[i] = which output port input i should go to
-    input  wire [1:0]             sel      [0:NUM_PORTS-1],
+    input  wire [1:0]             sel      [0:NUM_PORTS-1],// 2d array of 2-bit selections
     input  wire [NUM_PORTS-1:0]   sel_valid,  // grant is actually active
 
     // Output to each output port's FIFO
