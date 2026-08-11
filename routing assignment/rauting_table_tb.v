@@ -53,9 +53,29 @@ module routing_table_tb(); // FIXED: Changed 'raiting' to 'routing'
         wr_port     = 0;
         wr_valid    = 0;
         lookup_addr = 0;
+		
+        #20;
+        rst_n       = 1'b1;
         #10;
+
+        $display("\n=================================");
+        $display("   FULL ROUTING TABLE (DEFAULTS) ");
+        $display("=================================");
+        $display("  ADDR  |  PORT  |  VALID  ");
+        $display("---------------------------------");
+
         
-        rst_n   = 1'b1;
+        for (i = 0; i < 16; i = i + 1) begin
+            lookup_addr = i;
+            @(posedge clk); 
+			#10;
+            $display("   %2d   |   %2d   |    %b    ", lookup_addr, lookup_port, lookup_valid);
+        end
+
+        $display("=================================\n");
+		
+        
+        #50;
         
         
         wr_en   = 1'b1;
