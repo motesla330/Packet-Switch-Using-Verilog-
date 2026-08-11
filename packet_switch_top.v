@@ -12,12 +12,16 @@ module packet_switch_top #(
     input  wire                   rst_n,
 
     // External input — one per port
-    input  wire [DATA_WIDTH-1:0]  port_in_data  [0:NUM_PORTS-1],
+    // NOTE: was "input wire [DATA_WIDTH-1:0] port_in_data [0:NUM_PORTS-1]"
+    // (unpacked-array port) — ModelSim rejects array ports, so this
+    // is now one flattened packed vector. Port p lives in bits
+    // [(p+1)*DATA_WIDTH-1 -: DATA_WIDTH].
+    input  wire [DATA_WIDTH*NUM_PORTS-1:0]  port_in_data_flat,
     input  wire [NUM_PORTS-1:0]   port_in_valid,
     output wire [NUM_PORTS-1:0]   port_in_ready,  // back-pressure: 1 = accept
 
-    // External output — one per port
-    output wire [DATA_WIDTH-1:0]  port_out_data  [0:NUM_PORTS-1],
+    // External output — one per port (flattened for the same reason)
+    output wire [DATA_WIDTH*NUM_PORTS-1:0]  port_out_data_flat,
     output wire [NUM_PORTS-1:0]   port_out_valid,
     input  wire [NUM_PORTS-1:0]   port_out_ready, // downstream ready
 
@@ -31,6 +35,21 @@ module packet_switch_top #(
     // =========================================================
     // Internal wires — glue between modules
     // =========================================================
+
+    // Unpacked-array views of the flattened top-level data ports.
+    // Plain internal wires (not ports), so arrays are fine here —
+    // this lets the rest of the module keep using port_in_data[p] /
+    // port_out_data[p] exactly as before.
+    wire [DATA_WIDTH-1:0] port_in_data  [0:NUM_PORTS-1];
+    wire [DATA_WIDTH-1:0] port_out_data [0:NUM_PORTS-1];
+
+    genvar f;
+    generate
+        for (f = 0; f < NUM_PORTS; f = f + 1) begin : io_flatten_glue
+            assign port_in_data[f] = port_in_data_flat[(f+1)*DATA_WIDTH-1 -: DATA_WIDTH];
+            assign port_out_data_flat[(f+1)*DATA_WIDTH-1 -: DATA_WIDTH] = port_out_data[f];
+        end
+    endgenerate
 
     // Input FIFO outputs
     wire [DATA_WIDTH-1:0]  fifo_in_dout  [0:NUM_PORTS-1];
@@ -184,18 +203,35 @@ module packet_switch_top #(
         end
     endgenerate
 
+    // crossbar's in_data/sel/out_data ports are flattened (see crossbar.v),
+    // so flatten/unflatten at this boundary too. fifo_in_dout, xbar_sel and
+    // xbar_out_data stay as internal unpacked arrays — only the signals
+    // actually wired to a module port need to be flat.
+    wire [DATA_WIDTH*NUM_PORTS-1:0] fifo_in_dout_flat;
+    wire [2*NUM_PORTS-1:0]          xbar_sel_flat;
+    wire [DATA_WIDTH*NUM_PORTS-1:0] xbar_out_data_flat;
+
+    genvar x;
+    generate
+        for (x = 0; x < NUM_PORTS; x = x + 1) begin : xbar_flatten_glue
+            assign fifo_in_dout_flat[(x+1)*DATA_WIDTH-1 -: DATA_WIDTH] = fifo_in_dout[x];
+            assign xbar_sel_flat[(x+1)*2-1 -: 2]                      = xbar_sel[x];
+            assign xbar_out_data[x] = xbar_out_data_flat[(x+1)*DATA_WIDTH-1 -: DATA_WIDTH];
+        end
+    endgenerate
+
     crossbar #(
         .NUM_PORTS (NUM_PORTS),
         .DATA_WIDTH(DATA_WIDTH)
     ) u_xbar (
-        .clk      (clk),
-        .rst_n    (rst_n),
-        .in_data  (fifo_in_dout),
-        .in_valid (arb_grant),
-        .sel      (xbar_sel),
-        .sel_valid(arb_grant),
-        .out_data (xbar_out_data),
-        .out_valid(xbar_out_valid)
+        .clk           (clk),
+        .rst_n         (rst_n),
+        .in_data_flat  (fifo_in_dout_flat),
+        .in_valid      (arb_grant),
+        .sel_flat      (xbar_sel_flat),
+        .sel_valid     (arb_grant),
+        .out_data_flat (xbar_out_data_flat),
+        .out_valid     (xbar_out_valid)
     );
 
 endmodule
