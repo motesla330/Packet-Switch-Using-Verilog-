@@ -1,8 +1,6 @@
 // ============================================================
-//  routing_table.v  — fixed: renamed "table" to "rt_mem"
+//  routing_table.v
 // ============================================================
-`include "packet_defs.vh"
-
 module routing_table #(
     parameter ADDR_WIDTH = 4,
     parameter PORT_WIDTH = 2
@@ -24,35 +22,27 @@ module routing_table #(
 
     localparam TABLE_SIZE = 2 ** ADDR_WIDTH;
 
-    // ← was "table" — now "rt_mem" (routing table memory)
     reg [PORT_WIDTH:0] rt_mem [0:TABLE_SIZE-1];
-
     integer i;
 
-    // --- Reset and write ---
+    // --- Reset and Write ---
     always @(posedge clk or negedge rst_n) begin
-        
         if (!rst_n) begin
-
             for (i = 0; i < TABLE_SIZE; i = i + 1)
-                rt_mem[i] <= {(PORT_WIDTH+1){1'b0}};  // ← was table[i]
-        end else 
-            begin
-            if (wr_en) begin
-
-            rt_mem[wr_addr] <= {wr_valid, wr_port};   // ← was table[wr_addr]
+                rt_mem[i] <= {(PORT_WIDTH+1){1'b0}};
+        end else if (wr_en) begin
+            rt_mem[wr_addr] <= {wr_valid, wr_port};
         end
-                    end
     end
 
     // --- Lookup ---
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            lookup_port  <= 0;
-            lookup_valid <= 0;
-        end else  if (wr_en!=1)begin
-            lookup_port  <= rt_mem[lookup_addr][PORT_WIDTH-1:0]; // ← was table
-            lookup_valid <= rt_mem[lookup_addr][PORT_WIDTH];     // ← was table
+            lookup_port  <= {PORT_WIDTH{1'b0}};
+            lookup_valid <= 1'b0;
+        end else if (!wr_en) begin
+            lookup_port  <= rt_mem[lookup_addr][PORT_WIDTH-1:0];
+            lookup_valid <= rt_mem[lookup_addr][PORT_WIDTH];
         end
     end
 
