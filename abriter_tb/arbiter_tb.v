@@ -73,7 +73,7 @@ module arbiter_tb;
         // Test 2 : all ports request at the same time
         // after reset last_served = 3, so scan starts at 0
     
-       \
+       
         $display("\n Test 2: all ports requesting, check round-robin order");
 
         
