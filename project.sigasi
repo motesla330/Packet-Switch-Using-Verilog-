@@ -1,0 +1,10 @@
+{
+    "name": "Packet-Switch-Using-Verilog-",
+    "targets": {
+        "rtl": {
+            "libraryMapping": {
+                "": "work"
+            }
+        }
+    }
+}
