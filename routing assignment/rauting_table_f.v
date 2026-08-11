@@ -43,16 +43,16 @@ module routing_table #(
         for (i = 0; i < TABLE_SIZE; i = i + 1) begin
             
             if (i < 4) begin
-                rt_mem[i] <= {1'b0, 2'b00}; 
+                rt_mem[i] <= {1'b1, 2'b00}; 
             end 
             else if (i < 8) begin
-                rt_mem[i] <= {1'b0, 2'b01}; 
+                rt_mem[i] <= {1'b1, 2'b01}; 
             end 
             else if (i < 12) begin
-                rt_mem[i] <= {1'b0, 2'b10}; 
+                rt_mem[i] <= {1'b1, 2'b10}; 
             end 
             else begin
-                rt_mem[i] <= {1'b0, 2'b11}; 
+                rt_mem[i] <= {1'b1, 2'b11}; 
             end
 
         end
