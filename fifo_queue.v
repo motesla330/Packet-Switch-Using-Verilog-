@@ -65,8 +65,8 @@ always @(posedge clk or negedge rst_n)begin
 end 
  //The read logic 
  //combinational logic to output the data at the read pointer
- assign dout = mem[rd_ptr]; //
-
+ //assign dout = mem[rd_ptr]; //
+assign dout = empty ? {DATA_WIDTH{1'b0}} : mem[rd_ptr];
  always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             rd_ptr <= 0;
