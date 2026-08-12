@@ -26,6 +26,7 @@ module routing_table #(
     integer i;
 
     // --- Reset and Write ---
+	/*
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             for (i = 0; i < TABLE_SIZE; i = i + 1)
@@ -34,6 +35,34 @@ module routing_table #(
             rt_mem[wr_addr] <= {wr_valid, wr_port};
         end
     end
+*/
+
+			// --- Reset and Write --- defaul
+	always @(posedge clk or negedge rst_n) begin
+    if (!rst_n) begin
+        for (i = 0; i < TABLE_SIZE; i = i + 1) begin
+            
+            if (i < 4) begin
+                rt_mem[i] <= {1'b1, 2'b00}; 
+            end 
+            else if (i < 8) begin
+                rt_mem[i] <= {1'b1, 2'b01}; 
+            end 
+            else if (i < 12) begin
+                rt_mem[i] <= {1'b1, 2'b10}; 
+            end 
+            else begin
+                rt_mem[i] <= {1'b1, 2'b11}; 
+            end
+
+        end
+    end else if (wr_en) begin
+        rt_mem[wr_addr] <= {wr_valid, wr_port};
+    end
+	end
+
+
+
 
     // --- Lookup ---
     always @(posedge clk or negedge rst_n) begin
