@@ -8,20 +8,25 @@
 //  module nor either bridge module is touched here - this file
 //  only instantiates and connects them.
 //
-//  Two small supporting changes elsewhere make this integration
-//  correct; neither lives in this file, so they're noted here
-//  for anyone reading this top level:
+//  One small supporting change elsewhere makes this integration
+//  correct; it doesn't live in this file, so it's noted here for
+//  anyone reading this top level:
 //    1. packet_defs.vh - the shared header every module below
 //       includes - had to be added under that exact name; the
 //       project only shipped it as _packet_defs.v, which none
 //       of the `include "packet_defs.vh" directives would find.
-//    2. packet_switch_top.v got a one-cycle pipeline stage added
-//       between the arbiter's grant and the crossbar's in_valid/
-//       sel_valid/sel inputs, so the crossbar reads each input
-//       FIFO's dout on the cycle it actually holds the granted
-//       word rather than the cycle before. See the comment above
-//       that pipeline stage in packet_switch_top.v for the full
-//       explanation.
+//
+//  NOTE (fixed): packet_switch_top.v previously had an extra
+//  one-cycle pipeline stage between the arbiter's grant and the
+//  crossbar's in_valid/sel_valid/sel inputs. That stage was based
+//  on the incorrect assumption that fifo_in_dout needed a cycle to
+//  catch up to the grant; it doesn't (fifo_queue's dout is a plain
+//  combinational read), so the stage actually misaligned data from
+//  routing decisions -- dropping isolated packets outright and, for
+//  back-to-back packets, pairing one packet's route with the NEXT
+//  packet's payload. It's been removed; see the comment above the
+//  crossbar instantiation in packet_switch_top.v for the full
+//  explanation.
 //
 //  One more thing worth knowing before using this module: the
 //  routing table inside packet_switch_top resets with every

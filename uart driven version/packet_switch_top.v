@@ -9,7 +9,7 @@ module packet_switch_top #(
     parameter FIFO_DEPTH = 16
 )(
     input  wire                   clk,
-    input  wire                   rst_n,
+    input  wire rst_n,
 
     // External input — one per port
     input  wire [DATA_WIDTH-1:0]  port_in_data  [0:NUM_PORTS-1],
@@ -184,51 +184,53 @@ module packet_switch_top #(
         end
     endgenerate
 
-    // fifo_in_dout is a registered FIFO output: the word popped by a given
-    // rd_en pulse only appears on dout one cycle later (see fifo_queue.v).
-    // arb_grant is exactly that rd_en pulse, so if the crossbar looked at
-    // fifo_in_dout on the same cycle as arb_grant, it would sample the
-    // *previous* word still sitting on dout, not the one just granted.
-    // Delaying the crossbar's view of the grant (and the matching output
-    // selector) by one cycle lines it up with the cycle fifo_in_dout
-    // actually updates, so the crossbar always forwards the packet that
-    // was really popped. The FIFO read itself is unaffected — it still
-    // fires on the original, undelayed arb_grant above.
-    reg [NUM_PORTS-1:0] arb_grant_pipe;
-    reg [1:0]           xbar_sel_pipe [0:NUM_PORTS-1];
-
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n) begin
-            arb_grant_pipe <= {NUM_PORTS{1'b0}};
-        end else begin
-            arb_grant_pipe <= arb_grant;
-        end
-    end
-
-    genvar t;
+    // fifo_in_dout is a PURELY COMBINATIONAL read of the input FIFO
+    // (fifo_queue.v: `assign dout = mem[rd_ptr]`, no output register).
+    // rd_ptr itself doesn't advance until the clock edge AFTER rd_en
+    // was sampled, so during the very cycle arb_grant/rd_en is high,
+    // fifo_in_dout is already showing the word that grant refers to.
+    // No extra delay is needed (or correct) here: an earlier version
+    // of this file registered arb_grant/xbar_sel through one more
+    // pipeline stage before handing them to the crossbar, on the
+    // theory that fifo_in_dout needed a cycle to "catch up" the way a
+    // registered-output FIFO would. It doesn't, so that stage was
+    // actively wrong -- by the time the delayed grant/sel arrived,
+    // rd_ptr had already moved on to the NEXT word, so the crossbar
+    // forwarded the wrong packet's payload paired with the previous
+    // packet's route (or, for a single isolated packet with nothing
+    // queued behind it, forwarded nothing at all -- the packet was
+    // silently dropped). arb_grant and xbar_sel are fed to the
+    // crossbar directly, undelayed, below.
+    wire [DATA_WIDTH*NUM_PORTS-1:0] fifo_in_dout_flat;
+    wire [2*NUM_PORTS-1:0]          xbar_sel_flat;
+    genvar u;
     generate
-        for (t = 0; t < NUM_PORTS; t = t + 1) begin : sel_pipe_gen
-            always @(posedge clk or negedge rst_n) begin
-                if (!rst_n) begin
-                    xbar_sel_pipe[t] <= 2'b00;
-                end else begin
-                    xbar_sel_pipe[t] <= xbar_sel[t];
-                end
-            end
+        for (u = 0; u < NUM_PORTS; u = u + 1) begin : flatten_gen
+            assign fifo_in_dout_flat[u*DATA_WIDTH +: DATA_WIDTH] = fifo_in_dout[u];
+            assign xbar_sel_flat[u*2 +: 2]                       = xbar_sel[u];
+        end
+    endgenerate
+
+    // Flatten xbar output array into a single bus for the crossbar port
+    wire [DATA_WIDTH*NUM_PORTS-1:0] xbar_out_data_flat;
+    genvar v;
+    generate
+        for (v = 0; v < NUM_PORTS; v = v + 1) begin : flatten_xbar_out
+            assign xbar_out_data_flat[v*DATA_WIDTH +: DATA_WIDTH] = xbar_out_data[v];
         end
     endgenerate
 
     crossbar #(
-        .NUM_PORTS (NUM_PORTS),
+        .NUM_PORTS(NUM_PORTS),
         .DATA_WIDTH(DATA_WIDTH)
     ) u_xbar (
         .clk      (clk),
         .rst_n    (rst_n),
-        .in_data  (fifo_in_dout),
-        .in_valid (arb_grant_pipe),
-        .sel      (xbar_sel_pipe),
-        .sel_valid(arb_grant_pipe),
-        .out_data (xbar_out_data),
+        .in_data_flat (fifo_in_dout_flat),
+        .in_valid (arb_grant),
+        .sel_flat      (xbar_sel_flat),
+        .sel_valid(arb_grant),
+        .out_data_flat (xbar_out_data_flat),
         .out_valid(xbar_out_valid)
     );
 
