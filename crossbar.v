@@ -21,7 +21,7 @@ module crossbar #(
     // Routing decision from arbiter + routing table
     // sel[i] = which output port input i should go to
     // Flattened the same way: port i in bits [(i+1)*2-1 -: 2]
-    input  wire [2*NUM_PORTS-1:0]            sel_flat,   // flattened array of 2-bit selections
+    input  wire [2*NUM_PORTS-1:0]            sel_flat,   // flattened array of 2-bit selections 00_00_00_00
     input  wire [NUM_PORTS-1:0]              sel_valid,  // grant is actually active
 
     // Output to each output port's FIFO — flattened for the same reason

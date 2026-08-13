@@ -191,6 +191,103 @@ module tb_packet_switch_top;
         end
     endtask
 
+task send_two_packets_same_time;
+    input [63:0] packet0;          // packet entering input port 0
+    input [63:0] packet1;          // packet entering input port 1
+    input [1:0]  expected_port0;
+    input [1:0]  expected_port1;
+
+    integer timeout;
+    reg found0;
+    reg found1;
+
+    begin
+        found0 = 1'b0;
+        found1 = 1'b0;
+
+        // -------------------------------------------------
+        // Wait until both input ports are ready
+        // -------------------------------------------------
+        @(posedge clk);
+
+        while (!(port_in_ready[3] && port_in_ready[1]))
+            @(posedge clk);
+
+        // -------------------------------------------------
+        // Put packets on input ports 3 and 1 at SAME TIME
+        // -------------------------------------------------
+        port_in_data_flat[4*DATA_WIDTH-1 -: DATA_WIDTH] = packet0; // input 3
+        port_in_data_flat[2*DATA_WIDTH-1 -: DATA_WIDTH] = packet1; // input 1
+
+        port_in_valid[3] = 1'b1;
+        port_in_valid[1] = 1'b1;
+
+        @(posedge clk);
+
+        // Remove valid
+        port_in_valid[3] = 1'b0;
+        port_in_valid[1] = 1'b0;
+
+        port_in_data_flat[4*DATA_WIDTH-1 -: DATA_WIDTH] = 64'b0;
+        port_in_data_flat[2*DATA_WIDTH-1 -: DATA_WIDTH] = 64'b0;
+
+        // -------------------------------------------------
+        // Wait for both packets at their expected outputs
+        // -------------------------------------------------
+        timeout = 0;
+
+        while ((!found0 || !found1) && timeout < 30) begin
+            @(posedge clk);
+            #1;
+
+            // Check packet from input 3
+            if (!found0 && port_out_valid[expected_port0]) begin
+                if (port_out_data_flat[
+                    (expected_port0+1)*DATA_WIDTH-1
+                    -: DATA_WIDTH
+                ] == packet0) begin
+
+                    $display(
+                        "[PASS] Input 3 packet routed to output %0d",
+                        expected_port0
+                    );
+
+                    found0 = 1'b1;
+                end
+            end
+
+            // Check packet from input 1
+            if (!found1 && port_out_valid[expected_port1]) begin
+                if (port_out_data_flat[
+                    (expected_port1+1)*DATA_WIDTH-1
+                    -: DATA_WIDTH
+                ] == packet1) begin
+
+                    $display(
+                        "[PASS] Input 1 packet routed to output %0d",
+                        expected_port1
+                    );
+
+                    found1 = 1'b1;
+                end
+            end
+
+            timeout = timeout + 1;
+        end
+
+        if (!found0)
+            $display(
+                "[FAIL] Input 3 packet did not reach output %0d",
+                expected_port0
+            );
+
+        if (!found1)
+            $display(
+                "[FAIL] Input 1 packet did not reach output %0d",
+                expected_port1
+            );
+    end
+endtask
     // =========================================================
     // Main test sequence
     // =========================================================
@@ -224,9 +321,8 @@ module tb_packet_switch_top;
         repeat (2)
             @(posedge clk);
 
-        $display("==============================================");
         $display(" Starting Packet Switch Test");
-        $display("==============================================");
+    
 
         // =====================================================
         // TEST 1
@@ -335,7 +431,37 @@ module tb_packet_switch_top;
                 48'h0000_0000_4444
             )
         );
+// =====================================================
+// TEST 5 - Two packets entering at the SAME TIME
+//
+// Input port 3 -> destination 2 -> output port 0
+// Input port 1 -> destination 6 -> output port 1
+//
+// This tests simultaneous traffic from two inputs.
+// =====================================================
 
+send_two_packets_same_time(
+    make_packet(
+        4'd2,                   // destination -> output 0
+        4'd3,                   // source
+        `PKT_DATA,
+        `PRIO_NORMAL,
+        4'd4,
+        48'h0000_0000_AAAA
+    ),
+
+    make_packet(
+        4'd6,                   // destination -> output 1
+        4'd1,                   // source
+        `PKT_DATA,
+        `PRIO_HIGH,
+        4'd4,
+        48'h0000_0000_BBBB
+    ),
+
+    2'd0,                       // expected output for input 3 packet
+    2'd1                        // expected output for input 1 packet
+);
         // -----------------------------------------------------
         // End simulation
         // -----------------------------------------------------
