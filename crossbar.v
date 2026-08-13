@@ -10,13 +10,13 @@ module crossbar #(
 
    
     input  wire [DATA_WIDTH*NUM_PORTS-1:0]   in_data_flat,
-    input  wire [NUM_PORTS-1:0]              in_valid,   // which inputs have data
+    input  wire [NUM_PORTS-1:0]              in_valid,   
 
     
-    input  wire [2*NUM_PORTS-1:0]            sel_flat,   // flattened array of 2-bit selections 00_00_00_00
-    input  wire [NUM_PORTS-1:0]              sel_valid,  // grant is actually active
+    input  wire [2*NUM_PORTS-1:0]            sel_flat,   
+    input  wire [NUM_PORTS-1:0]              sel_valid,  
 
-    // Output to each output port's FIFO —> flattened
+
     output wire [DATA_WIDTH*NUM_PORTS-1:0]   out_data_flat,
     output reg  [NUM_PORTS-1:0]              out_valid
 );
@@ -39,13 +39,11 @@ module crossbar #(
 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            // Clear
             for (outp = 0; outp < NUM_PORTS; outp = outp + 1) begin
                 out_data[outp]  <= {DATA_WIDTH{1'b0}};
                 out_valid[outp] <= 1'b0;
             end
         end else begin
-            // Default
             for (outp = 0; outp < NUM_PORTS; outp = outp + 1) begin
                 out_data[outp]  <= {DATA_WIDTH{1'b0}};
                 out_valid[outp] <= 1'b0;

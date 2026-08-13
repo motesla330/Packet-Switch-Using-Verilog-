@@ -5,7 +5,6 @@
 module tb_packet_switch_top;
 
     
-    // Parameters
     
     localparam NUM_PORTS  = 4;
     localparam DATA_WIDTH = 64;
@@ -15,23 +14,18 @@ module tb_packet_switch_top;
     reg rst_n;
 
     
-    // DUT input
    
     reg  [DATA_WIDTH*NUM_PORTS-1:0] port_in_data_flat;
     reg  [NUM_PORTS-1:0]            port_in_valid;
     wire [NUM_PORTS-1:0]            port_in_ready;
 
    
-    // DUT output
    
     wire [DATA_WIDTH*NUM_PORTS-1:0] port_out_data_flat;
     wire [NUM_PORTS-1:0]            port_out_valid;
     reg  [NUM_PORTS-1:0]            port_out_ready;
 
     
-    // Routing table write interface
-    // Not needed for these tests because your routing table
-    // has default values loaded during reset.
     
     reg        rt_wr_en;
     reg [3:0]  rt_wr_addr;
@@ -39,8 +33,6 @@ module tb_packet_switch_top;
     reg        rt_wr_valid;
 
 
-    // DUT
-    
     packet_switch_top #(
         .NUM_PORTS  (NUM_PORTS),
         .DATA_WIDTH (DATA_WIDTH),
@@ -63,23 +55,13 @@ module tb_packet_switch_top;
         .rt_wr_valid       (rt_wr_valid)
     );
 
-    // Clock generation
   
     initial begin
         clk = 1'b0;
         forever #5 clk = ~clk;
     end
 
-  
-    // Test packet generator
-    //
-    // Packet format:
-    // [63:60] destination
-    // [59:56] source
-    // [55:54] type
-    // [53:52] priority
-    // [51:48] length
-    // [47:0]  payload
+
   
     function [63:0] make_packet;
         input [3:0]  dst;
@@ -101,7 +83,6 @@ module tb_packet_switch_top;
         end
     endfunction
 
-    // Send one packet and check expected output port/data
    
     task send_and_check;
         input [63:0] packet;
@@ -115,7 +96,6 @@ module tb_packet_switch_top;
             found = 1'b0;
 
            
-            // Put packet on input port 0
           
             @(posedge clk);
 
@@ -127,12 +107,10 @@ module tb_packet_switch_top;
 
             @(posedge clk);
 
-            // Remove valid after one clock
             port_in_valid[0] = 1'b0;
             port_in_data_flat[63:0] = 64'b0;
 
-            
-            // Wait for packet at expected output
+
             
             timeout = 0;
 
@@ -186,8 +164,8 @@ module tb_packet_switch_top;
     endtask
 
 task send_two_packets_same_time;
-    input [63:0] packet0;          // packet entering input port 0
-    input [63:0] packet1;          // packet entering input port 1
+    input [63:0] packet0;          
+    input [63:0] packet1;         
     input [1:0]  expected_port0;
     input [1:0]  expected_port1;
 
@@ -200,25 +178,23 @@ task send_two_packets_same_time;
         found1 = 1'b0;
 
         
-        // Wait until both input ports are ready
         
         @(posedge clk);
 
         while (!(port_in_ready[3] && port_in_ready[1]))
             @(posedge clk);
 
-     
-        // Put packets on input ports 3 and 1 at SAME TIME
+
     
-        port_in_data_flat[4*DATA_WIDTH-1 -: DATA_WIDTH] = packet0; // input 3
-        port_in_data_flat[2*DATA_WIDTH-1 -: DATA_WIDTH] = packet1; // input 1
+        port_in_data_flat[4*DATA_WIDTH-1 -: DATA_WIDTH] = packet0;
+        port_in_data_flat[2*DATA_WIDTH-1 -: DATA_WIDTH] = packet1;
 
         port_in_valid[3] = 1'b1;
         port_in_valid[1] = 1'b1;
 
         @(posedge clk);
 
-        // Remove valid
+
         port_in_valid[3] = 1'b0;
         port_in_valid[1] = 1'b0;
 
@@ -226,7 +202,7 @@ task send_two_packets_same_time;
         port_in_data_flat[2*DATA_WIDTH-1 -: DATA_WIDTH] = 64'b0;
 
         
-        // Wait for both packets at their expected outputs
+
         
         timeout = 0;
 
@@ -234,7 +210,6 @@ task send_two_packets_same_time;
             @(posedge clk);
             #1;
 
-            // Check packet from input 3
             if (!found0 && port_out_valid[expected_port0]) begin
                 if (port_out_data_flat[
                     (expected_port0+1)*DATA_WIDTH-1
@@ -250,7 +225,6 @@ task send_two_packets_same_time;
                 end
             end
 
-            // Check packet from input 1
             if (!found1 && port_out_valid[expected_port1]) begin
                 if (port_out_data_flat[
                     (expected_port1+1)*DATA_WIDTH-1
@@ -282,8 +256,7 @@ task send_two_packets_same_time;
             );
     end
 endtask
-   
-    // Main test sequence
+
     
     initial begin
 
@@ -291,10 +264,8 @@ endtask
         port_in_data_flat = 256'b0;
         port_in_valid     = 4'b0000;
 
-        // All outputs ready
         port_out_ready    = 4'b1111;
 
-        // No routing table writes
         rt_wr_en          = 1'b0;
         rt_wr_addr        = 4'b0;
         rt_wr_port        = 2'b0;
@@ -315,20 +286,15 @@ endtask
     
 
        
-        // TEST 1
-        // Destination = 2
-        //
-        // Routing table:
-        // 0-3   -> output 0
        
         send_and_check(
             make_packet(
-                4'd2,                   // destination
-                4'd1,                   // source
-                `PKT_DATA,              // type
-                `PRIO_NORMAL,           // priority
-                4'd4,                   // length
-                48'h0000_0000_1111      // payload
+                4'd2,                   
+                4'd1,                   
+                `PKT_DATA,              
+                `PRIO_NORMAL,           
+                4'd4,                  
+                48'h0000_0000_1111      
             ),
             2'd0,
             make_packet(
@@ -342,12 +308,7 @@ endtask
         );
 
         
-        // TEST 2
-        // Destination = 6
-        //
-        // Routing table:
-        // 4-7   -> output 1
-      
+       
         send_and_check(
             make_packet(
                 4'd6,
@@ -369,11 +330,6 @@ endtask
         );
 
        
-        // TEST 3
-        // Destination = 9
-        //
-        // Routing table:
-        // 8-11  -> output 2
        
         send_and_check(
             make_packet(
@@ -396,11 +352,7 @@ endtask
         );
 
        
-        // TEST 4
-        // Destination = 14
-        //
-        // Routing table:
-        // 12-15 -> output 3
+        
        
         send_and_check(
             make_packet(
@@ -422,18 +374,13 @@ endtask
             )
         );
 
-// TEST 5 - Two packets entering at the SAME TIME
-//
-// Input port 3 -> destination 2 -> output port 0
-// Input port 1 -> destination 6 -> output port 1
-//
-// This tests simultaneous traffic from two inputs.
+
 
 
 send_two_packets_same_time(
     make_packet(
-        4'd2,                   // destination -> output 0
-        4'd3,                   // source
+        4'd2,                   
+        4'd3,                  
         `PKT_DATA,
         `PRIO_NORMAL,
         4'd4,
@@ -441,16 +388,16 @@ send_two_packets_same_time(
     ),
 
     make_packet(
-        4'd6,                   // destination -> output 1
-        4'd1,                   // source
+        4'd6,                 
+        4'd1,                   
         `PKT_DATA,
         `PRIO_HIGH,
         4'd4,
         48'h0000_0000_BBBB
     ),
 
-    2'd0,                       // expected output for input 3 packet
-    2'd1                        // expected output for input 1 packet
+    2'd0,                       
+    2'd1                      
 );
      
         $display(" Testbench Finished");
