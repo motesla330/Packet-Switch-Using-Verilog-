@@ -1,6 +1,4 @@
-// ============================================================
-//  routing_table.v
-// ============================================================
+
 module routing_table #(
     parameter ADDR_WIDTH = 4,
     parameter PORT_WIDTH = 2
@@ -37,7 +35,7 @@ module routing_table #(
     end
 */
 
-			// --- Reset and Write --- defaul
+// Reset and Write 
 	always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
         for (i = 0; i < TABLE_SIZE; i = i + 1) begin
@@ -64,7 +62,7 @@ module routing_table #(
 
 
 
-    // --- Lookup ---
+    // Lookup 
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             lookup_port  <= {PORT_WIDTH{1'b0}};

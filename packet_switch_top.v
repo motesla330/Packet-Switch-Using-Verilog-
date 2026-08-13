@@ -1,6 +1,4 @@
-// ============================================================
-//  packet_switch_top.v  — The complete 4-port packet switch
-// ============================================================
+
 `include "packet_defs.vh"
 
 module packet_switch_top #(
@@ -12,15 +10,11 @@ module packet_switch_top #(
     input  wire                   rst_n,
 
     // External input — one per port
-    // NOTE: was "input wire [DATA_WIDTH-1:0] port_in_data [0:NUM_PORTS-1]"
-    // (unpacked-array port) — ModelSim rejects array ports, so this
-    // is now one flattened packed vector. Port p lives in bits
-    // [(p+1)*DATA_WIDTH-1 -: DATA_WIDTH].
     input  wire [DATA_WIDTH*NUM_PORTS-1:0]  port_in_data_flat,
     input  wire [NUM_PORTS-1:0]   port_in_valid,
     output wire [NUM_PORTS-1:0]   port_in_ready,  // back-pressure: 1 = accept
 
-    // External output — one per port (flattened for the same reason)
+    // External output — one per port 
     output wire [DATA_WIDTH*NUM_PORTS-1:0]  port_out_data_flat,
     output wire [NUM_PORTS-1:0]   port_out_valid,
     input  wire [NUM_PORTS-1:0]   port_out_ready, // downstream ready
@@ -32,14 +26,10 @@ module packet_switch_top #(
     input  wire                   rt_wr_valid
 );
 
-    // =========================================================
-    // Internal wires — glue between modules
-    // =========================================================
 
-    // Unpacked-array views of the flattened top-level data ports.
-    // Plain internal wires (not ports), so arrays are fine here —
-    // this lets the rest of the module keep using port_in_data[p] /
-    // port_out_data[p] exactly as before.
+    // Internal wires — glue between modules
+   
+
     wire [DATA_WIDTH-1:0] port_in_data  [0:NUM_PORTS-1];
     wire [DATA_WIDTH-1:0] port_out_data [0:NUM_PORTS-1];
 
@@ -81,11 +71,7 @@ module packet_switch_top #(
     wire [NUM_PORTS-1:0]  fifo_out_empty;
     wire [NUM_PORTS-1:0]  fifo_out_full;
 
-    // =========================================================
-    // Generate block — instantiate one copy per port
-    // =========================================================
-    // "generate" lets you create N identical instances with
-    // a for loop. genvar is a special loop variable for generate.
+    
 
     genvar p;
     generate
@@ -162,11 +148,7 @@ module packet_switch_top #(
         end
     endgenerate
 
-    // =========================================================
-    // Arbiter — one instance, looks at all ports
-    // =========================================================
-    // Request: port wants to send if it has a valid routed packet
-    // Broadcast packets are sent from port 0's arbiter slot
+   
     genvar q;
     generate
         for (q = 0; q < NUM_PORTS; q = q + 1) begin : arb_req_gen
@@ -191,10 +173,7 @@ module packet_switch_top #(
         end
     endgenerate
 
-    // =========================================================
-    // Crossbar — connect granted input to its destination output
-    // =========================================================
-    // Build sel[] array: for the winning port, sel = routed_port
+    
     wire [1:0] xbar_sel [0:NUM_PORTS-1];
     genvar s;
     generate
@@ -203,10 +182,6 @@ module packet_switch_top #(
         end
     endgenerate
 
-    // crossbar's in_data/sel/out_data ports are flattened (see crossbar.v),
-    // so flatten/unflatten at this boundary too. fifo_in_dout, xbar_sel and
-    // xbar_out_data stay as internal unpacked arrays — only the signals
-    // actually wired to a module port need to be flat.
     wire [DATA_WIDTH*NUM_PORTS-1:0] fifo_in_dout_flat;
     wire [2*NUM_PORTS-1:0]          xbar_sel_flat;
     wire [DATA_WIDTH*NUM_PORTS-1:0] xbar_out_data_flat;
