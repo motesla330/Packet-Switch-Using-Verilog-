@@ -52,7 +52,7 @@ module arbiter #(
         if (!rst_n) begin
             grant       <= {NUM_PORTS{1'b0}};
             grant_idx   <= 0;
-            last_served <= NUM_PORTS - 1;
+            last_served <= NUM_PORTS - 1;// start with port 0 on first cycle
         end else begin
             grant       <= next_grant;
             grant_idx   <= next_idx;

@@ -34,12 +34,12 @@ The packet-switch RTL was verified using **Verilog testbenches and ModelSim**, c
 - ModelSim
 - RTL Design
 
-## Team
+## Team and Contributions
 
-- Mohamed Ahmed Mahmoud
-- Mariam Badawy Helmy
-- Sama Mohamed Ahmed
-- Mahmoud Mostafa Elsayed
-- Abanoub Ashraf Saneed
+* **Mohamed Ahmed Mahmoud** → System architecture, Round-Robin Arbiter design, and UART protocol design.
+* **Mariam Badawy Helmy** → Routing Table design and system integration.
+* **Sama Mohamed Ahmed** → Asynchronous FIFO and Header Parser modules.
+* **Mahmoud Mostafa Elsayed** → UART–Packet Switch bridge modules and system integration.
+* **Abanoub Ashraf Saneed** → Crossbar module and top-level testbenches.
 
 **Supervisor:** Eng. Mohamed Salah
